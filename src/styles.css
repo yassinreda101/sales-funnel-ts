@@ -1,117 +1,98 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 body {
   font-family: 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: auto;
-  -moz-font-smoothing: auto;
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-smoothing: auto;
-  text-rendering: optimizeLegibility;
-  font-smooth: always;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  background-color: #f8f8f8; /* Very light gray background */
-  color: #1A1A1A; /* Dark text */
+  background-color: #ffffff;
+  color: #333;
 }
 
-h1 {
-  font-size: 2rem;
-  color: #8bb3e9; /* Softer Blue */
-  animation: slideInFromTop 1s ease-out forwards;
+.text-indigo-600 {
+  color: #4F46E5;
 }
 
-.text-soft-blue {
-  color: #8bb3e9; /* Softer Blue */
+.bg-indigo-600 {
+  background-color: #4F46E5;
+}
+
+.hover\:bg-indigo-700:hover {
+  background-color: #4338CA;
 }
 
 .text-gold {
-  color: #FFD700; /* Gold */
+  color: #FFD700;
 }
 
 .text-silver {
-  color: #C0C0C0; /* Silver */
-}
-
-.text-black {
-  color: #000000; /* Black */
-}
-
-.bg-white {
-  background-color: #FFFFFF; /* White */
+  color: #C0C0C0;
 }
 
 .bg-dark-gray {
-  background-color: #1A1A1A; /* Dark Gray background */
+  background-color: #333333 !important;
 }
 
-.bg-transparent {
-  background-color: rgba(255, 255, 255, 0.2); /* Grayish transparency */
+/* Card flip styles */
+.fixed-card-wrapper {
+  perspective: 1000px;
+  width: 384px;
+  height: 224px;
 }
 
-.border-gray-300 {
-  border-color: #d1d5db; /* Light gray border */
-}
-
-.hover\:bg-blue-700:hover {
-  background-color: #003366; /* Darker Blue on hover */
-}
-
-.flex {
-  display: flex;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.mb-2 {
-  margin-bottom: 0.5rem;
-}
-
-.mr-2 {
-  margin-right: 0.5rem;
-}
-
-.text-lg {
-  font-size: 1.125rem;
-}
-
-.space-x-12 {
-  gap: 3rem;
-}
-
-.material-icons {
-  font-size: 2.5rem;
-}
-
-.rotate-y-180 {
-  transform: rotateY(180deg);
-}
-
-.transition-transform {
+.fixed-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
   transition: transform 0.6s;
+  transform-style: preserve-3d;
 }
 
-.front {
-  backface-visibility: hidden;
-}
-
-.back {
-  backface-visibility: hidden;
+.fixed-card.flipped {
   transform: rotateY(180deg);
 }
 
-.swiftcard-text {
-  display: inline-block;
-  background: linear-gradient(to right, #8bb3e9 50%, #000000 50%);
-  -webkit-background-clip: text;
-  color: transparent;
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.card-front, .card-back {
+  background-color: inherit;
+}
+
+.card-back {
+  transform: rotateY(180deg);
 }
 
 .arrow {
@@ -119,62 +100,422 @@ h1 {
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  border-bottom: 10px solid #8bb3e9;
+  border-top: 10px solid #3B82F6;
   margin-bottom: 5px;
 }
 
-input[type='text']:focus, input[type='email']:focus, input[type='tel']:focus, select:focus, input[type='checkbox']:focus, button:focus {
-  outline: none;
-  border-color: #8bb3e9;
-  box-shadow: 0 0 0 2px rgba(139, 179, 233, 0.5);
+@keyframes carousel {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
-button {
-  background-color: #8bb3e9;
-  color: #fff;
+.animate-carousel {
+  animation: carousel 30s linear infinite;
 }
 
-button:hover {
-  background-color: #003366;
+@keyframes slideInFromTop {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-/* Responsive Layout */
-.container {
-  display: flex;
-  flex-direction: column;
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-.card-container {
-  flex: 1;
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.slide-in-top {
+  animation: slideInFromTop 0.5s ease-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.slide-in-left {
+  animation: slideInFromLeft 0.5s ease-out;
+}
+
+/* Custom styling for form elements */
+input[type='text'],
+input[type='email'],
+input[type='tel'],
+input[type='file'],
+select,
+textarea {
+  @apply w-full p-2 border border-gray-300 rounded-lg bg-transparent text-gray-700;
+}
+
+input[type='text']:focus,
+input[type='email']:focus,
+input[type='tel']:focus,
+input[type='file']:focus,
+select:focus,
+textarea:focus {
+  @apply outline-none border-blue-500 ring-2 ring-blue-200;
+}
+
+/* Additional custom classes */
+.gradient-bg {
+  background: linear-gradient(to bottom right, #3B82F6, #ffffff);
+}
+
+.shadow-soft {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+/* QR Code specific styles */
+.qr-code-container {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100%;
 }
 
-.card {
-  width: 24rem;
-  height: 14rem;
-  animation: fadeIn 1s ease-out forwards, slideInFromLeft 1s ease-out forwards;
+.qr-code {
+  max-width: 80%;
+  max-height: 80%;
 }
 
-.fixed-card-wrapper {
+/* Card flip indicator */
+.card-flip-indicator {
+  text-align: center;
+  margin-top: 1rem;
+  font-weight: bold;
+  color: #3B82F6;
+}
+
+/* Styling for social media icons */
+.social-media-icons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.social-media-icon {
+  font-size: 1.5rem;
+  color: inherit;
+}
+
+/* Logo styling */
+.card-logo {
+  max-width: 60px;
+  max-height: 60px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
+/* Card name styling */
+.card-name {
+  text-align: center;
+  word-break: break-word;
+  max-width: 90%;
+}
+
+/* Custom styling for the order form */
+.order-form {
+  @apply bg-white p-8 rounded-lg shadow-md;
+}
+
+.form-section {
+  @apply mb-6;
+}
+
+.form-label {
+  @apply block text-lg font-bold mb-2 text-gray-700;
+}
+
+.form-input {
+  @apply w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300;
+}
+
+.form-button {
+  @apply w-full p-3 bg-indigo-600 text-white text-lg font-bold rounded-lg hover:bg-indigo-700 transition-colors;
+}
+
+/* Styling for card type selection */
+.card-type-selector {
+  @apply flex space-x-4 mb-6;
+}
+
+.card-type-button {
+  @apply flex-1 py-2 px-4 rounded-lg flex items-center justify-center transition-colors;
+}
+
+.card-type-button.active {
+  @apply bg-indigo-600 text-white;
+}
+
+.card-type-button:not(.active) {
+  @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+}
+
+/* Styling for color pickers */
+.color-picker {
+  @apply flex flex-wrap gap-2 mt-2;
+}
+
+.color-option {
+  @apply w-8 h-8 rounded-full cursor-pointer border-2 border-transparent;
+}
+
+.color-option.selected {
+  @apply border-black;
+}
+
+/* Styling for font picker */
+.font-picker {
+  @apply mt-2;
+}
+
+.font-option {
+  @apply block p-2 hover:bg-gray-100 cursor-pointer;
+}
+
+/* Styling for size slider */
+.size-slider {
+  @apply w-full;
+}
+
+/* Styling for icon size slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;  
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+input[type="range"]:hover {
+  opacity: 1;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%; 
+  background: #4F46E5;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4F46E5;
+  cursor: pointer;
+}
+
+/* New styles for bottom card preview */
+.fixed-card-preview {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
 }
 
+.fixed-card-preview.hidden {
+  transform: translateY(100%);
+}
+
+.preview-toggle-button {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  background-color: white;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Improved desktop layout */
 @media (min-width: 1024px) {
-  .container {
-    flex-direction: row;
+  .max-w-7xl {
+    max-width: 1280px;
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
-  .card-container {
-    justify-content: flex-start;
+
+  .order-form-fields {
+    padding-right: 2rem;
   }
-  .fixed-card-wrapper {
+
+  .lg\:sticky {
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+/* Responsive layout adjustments */
+@media (max-width: 1023px) {
+  .order-form-card {
     position: fixed;
-    top: 50%;
-    left: 25%;
-    transform: translate(-50%, -50%);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .order-form-fields {
+    padding-bottom: 250px; /* Adjust this value based on your card preview height */
+  }
+
+  .fixed-card-wrapper {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    aspect-ratio: 1.71 / 1;
+    margin: 0 auto;
+  }
+
+  .card {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Smooth scrolling for iOS devices */
+@supports (-webkit-overflow-scrolling: touch) {
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Hide the desktop version of the card on mobile */
+@media (max-width: 1023px) {
+  .lg\:block {
+    display: none !important;
+  }
+}
+
+/* Show the mobile version of the card preview */
+@media (min-width: 1024px) {
+  .fixed-card-preview {
+    display: none !important;
+  }
+}
+
+/* Ensure proper spacing for form elements on medium-sized screens */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .form-section {
+    @apply mb-6;
+  }
+
+  .grid {
+    @apply gap-6;
+  }
+}
+
+/* Additional improvements for larger screens */
+@media (min-width: 1280px) {
+  .max-w-7xl {
+    max-width: 1440px;
+  }
+
+  .fixed-card-wrapper {
+    width: 450px;
+    height: 263px;
+  }
+}
+
+/* Improve contrast for accessibility */
+.text-gray-600 {
+  color: #4B5563;
+}
+
+.text-gray-700 {
+  color: #374151;
+}
+
+/* Ensure proper contrast for form inputs */
+input::placeholder,
+textarea::placeholder {
+  color: #9CA3AF;
+}
+
+/* Improve focus styles for better accessibility */
+*:focus {
+  outline: 2px solid #4F46E5;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for interactive elements */
+button,
+input[type="checkbox"],
+input[type="radio"] {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Improve hover states for better user feedback */
+button:hover:not(:disabled),
+input[type="checkbox"]:hover:not(:disabled),
+input[type="radio"]:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles for disabled form elements */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Print styles for better print layout */
+@media print {
+  .no-print {
+    display: none;
+  }
+
+  body {
+    font-size: 12pt;
+  }
+
+  .fixed-card-wrapper {
+    page-break-inside: avoid;
   }
 }

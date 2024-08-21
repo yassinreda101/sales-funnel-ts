@@ -2,17 +2,9 @@ import React, { useRef, useEffect } from 'react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaGithub, FaSnapchat } from 'react-icons/fa';
 import { TbLetterX } from 'react-icons/tb';
 
-const socialMediaIcons: { [key: string]: JSX.Element } = {
-  facebook: <FaFacebook className="text-2xl" />,
-  x: <TbLetterX className="text-2xl" />,
-  instagram: <FaInstagram className="text-2xl" />,
-  linkedin: <FaLinkedin className="text-2xl" />,
-  github: <FaGithub className="text-2xl" />,
-  snapchat: <FaSnapchat className="text-2xl" />,
-};
-
 interface CardProps {
-  name: string;
+  companyName: string;
+  employeeName: string;
   font: string;
   size: number;
   color: string;
@@ -20,14 +12,20 @@ interface CardProps {
   socialMedia: string[];
   isFlipped: boolean;
   addQrCode: boolean;
+  showQrCode: boolean;
   qrCode: string;
   isDefault: boolean;
   handleSwipe: () => void;
   setError: (error: string) => void;
+  userType: 'individual' | 'business';
+  logo: string | null;
+  logoScale: number;
+  iconSize: number;
 }
 
 const Card: React.FC<CardProps> = ({
-  name,
+  companyName,
+  employeeName,
   font,
   size,
   color,
@@ -35,73 +33,114 @@ const Card: React.FC<CardProps> = ({
   socialMedia,
   isFlipped,
   addQrCode,
+  showQrCode,
   qrCode,
   isDefault,
   handleSwipe,
   setError,
+  userType,
+  logo,
+  logoScale,
+  iconSize,
 }) => {
-  const nameRef = useRef<HTMLHeadingElement>(null);
+  const companyNameRef = useRef<HTMLHeadingElement>(null);
+  const employeeNameRef = useRef<HTMLHeadingElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (nameRef.current && cardRef.current) {
-      const cardWidth = cardRef.current.offsetWidth;
-      const nameWidth = nameRef.current.scrollWidth;
+  const socialMediaIcons: { [key: string]: JSX.Element } = {
+    facebook: <FaFacebook style={{ fontSize: `${iconSize}px` }} />,
+    x: <TbLetterX style={{ fontSize: `${iconSize}px` }} />,
+    instagram: <FaInstagram style={{ fontSize: `${iconSize}px` }} />,
+    linkedin: <FaLinkedin style={{ fontSize: `${iconSize}px` }} />,
+    github: <FaGithub style={{ fontSize: `${iconSize}px` }} />,
+    snapchat: <FaSnapchat style={{ fontSize: `${iconSize}px` }} />,
+  };
 
-      if (nameWidth > cardWidth) {
+  useEffect(() => {
+    if (cardRef.current) {
+      const cardWidth = cardRef.current.offsetWidth;
+      const companyNameWidth = companyNameRef.current?.scrollWidth || 0;
+      const employeeNameWidth = employeeNameRef.current?.scrollWidth || 0;
+
+      if (companyNameWidth > cardWidth || employeeNameWidth > cardWidth) {
         setError('Name exceeds the card size.');
       } else {
         setError('');
       }
     }
-  }, [name, setError]);
-
+  }, [companyName, employeeName, setError]);
+  
   return (
     <div className="fixed-card-wrapper">
-      <div className="fixed-card">
-        <div
-          ref={cardRef}
-          className={`card w-96 h-56 rounded-lg shadow-lg transition-transform transform ${
-            isFlipped ? 'rotate-y-180' : ''
-          } flex flex-col items-center justify-center ${cardColor}`}
-          style={{ perspective: '1000px' }}
-          onClick={handleSwipe}
-        >
-          <div className={`absolute w-full h-full flex flex-col items-center justify-center front`}>
-            {isDefault ? (
-              <h2 className="text-2xl font-bold text-blue-500">
-                Hi! Let's Customize your card
-              </h2>
-            ) : (
-              <>
-                <h2
-                  ref={nameRef}
-                  className={`font-bold mb-2 ${color}`}
-                  style={{ fontFamily: font, fontSize: `${size}px` }}
-                >
-                  {name}
+      <div 
+        className={`fixed-card ${isFlipped ? 'flipped' : ''}`} 
+        onClick={handleSwipe}
+      >
+        <div ref={cardRef} className={`card ${cardColor}`}>
+          <div className="card-inner">
+            <div className={`card-face card-front ${cardColor}`}>
+              {isDefault ? (
+                <h2 className="text-2xl font-bold text-indigo-600">
+                  Hi! Let's Customize your card
                 </h2>
-                <div className="flex space-x-4">
-                  {socialMedia.map((icon) => (
-                    <div key={icon} className={color}>
-                      {socialMediaIcons[icon]}
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full">
+                  {userType === 'business' && logo && (
+                    <img 
+                      src={logo} 
+                      alt="Company Logo" 
+                      className="w-24 h-24 object-contain mb-4" 
+                      style={{ transform: `scale(${logoScale})` }}
+                    />
+                  )}
+                  <h2
+                    ref={companyNameRef}
+                    className={`font-bold text-center ${color}`}
+                    style={{ fontFamily: font, fontSize: `${size}px` }}
+                  >
+                    {companyName}
+                  </h2>
+                  {employeeName && (
+                    <h3
+                      ref={employeeNameRef}
+                      className={`font-medium text-center mt-1 ${color}`}
+                      style={{ fontFamily: font, fontSize: `${size * 0.8}px` }}
+                    >
+                      {employeeName}
+                    </h3>
+                  )}
+                  {socialMedia.length > 0 && (
+                    <div className="flex space-x-4 mt-4">
+                      {socialMedia.map((icon) => (
+                        <div key={icon} className={color}>
+                          {socialMediaIcons[icon as keyof typeof socialMediaIcons]}
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              </>
-            )}
-          </div>
-          <div className={`absolute w-full h-full flex flex-col items-center justify-center back`}>
-            {addQrCode && qrCode && (
-              <img src={qrCode} alt="QR Code" className="w-32 h-32" />
-            )}
+              )}
+            </div>
+            <div className={`card-face card-back ${cardColor}`}>
+              {addQrCode && showQrCode && qrCode ? (
+                <img 
+                  src={qrCode} 
+                  alt="QR Code" 
+                  className={`w-32 h-32 ${color}`} 
+                />
+              ) : (
+                <p className="text-center text-gray-500">
+                  {addQrCode ? "QR Code will appear here" : "Back of the card"}
+                </p>
+              )}
+            </div>
           </div>
         </div>
-        <div className="mt-2 flex flex-col items-center">
-          <div className="arrow text-blue-500" />
-          <div className="text-blue-500 font-bold">
-            {isFlipped ? 'Tap to see front' : 'Tap to see back'}
-          </div>
+      </div>
+      <div className="mt-2 flex flex-col items-center">
+        <div className="arrow" />
+        <div className="text-indigo-600 font-bold">
+          {isFlipped ? 'Tap to see front' : 'Tap to see back'}
         </div>
       </div>
     </div>

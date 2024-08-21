@@ -1,32 +1,37 @@
 import React, { useState } from 'react';
 import LandingPage from './LandingPage';
-import CardTypePage from './CardTypePage';
 import OrderForm from './OrderForm';
+import Footer from './Footer';
 import '../styles.css';
 
 const App: React.FC = () => {
-  const [showForm, setShowForm] = useState(false);
-  const [cardType, setCardType] = useState<'individual' | 'business' | null>(null);
-
-  const handleCardTypeSelection = (type: 'individual' | 'business') => {
-    setCardType(type);
-    setShowForm(true);
-  };
+  const [showOrderForm, setShowOrderForm] = useState(false);
 
   return (
-    <div className="min-h-screen bg-light-gray">
-      <header className="p-4 bg-white shadow-md flex justify-between items-center">
-        <h1 className="text-4xl font-bold swiftcard-text">SwiftCard</h1>
+    <div className="min-h-screen flex flex-col bg-white">
+      <header className="bg-white shadow-md py-4 px-6">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-indigo-600">SwiftCard</h1>
+          {!showOrderForm && (
+            <button
+              onClick={() => setShowOrderForm(true)}
+              className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
+            >
+              Get Started
+            </button>
+          )}
+        </div>
       </header>
-      {showForm ? (
-        <OrderForm userType={cardType!} />
-      ) : (
-        cardType === null ? (
-          <LandingPage onButtonClick={() => setCardType('individual')} />
+      
+      <main className="flex-grow">
+        {showOrderForm ? (
+          <OrderForm onBack={() => setShowOrderForm(false)} />
         ) : (
-          <CardTypePage onCardTypeSelect={handleCardTypeSelection} />
-        )
-      )}
+          <LandingPage onGetStarted={() => setShowOrderForm(true)} />
+        )}
+      </main>
+      
+      <Footer />
     </div>
   );
 };

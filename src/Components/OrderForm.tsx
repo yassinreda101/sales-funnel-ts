@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { FaFacebook, FaInstagram, FaLinkedin, FaGithub, FaSnapchat } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaUser, FaBuilding, FaArrowLeft, FaFacebook, FaInstagram, FaLinkedin, FaGithub, FaSnapchat, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import { TbLetterX } from 'react-icons/tb';
 import Card from './Card';
 import QRCodeGenerator from './QRCodeGenerator';
-import '../styles.css';
+import { sendOrderEmail, sendSMS } from '../api';
 
 const socialMediaOptions = [
   { value: 'facebook', label: 'Facebook', icon: <FaFacebook /> },
@@ -23,19 +23,13 @@ const fontOptions = [
   { value: 'Brush Script MT', label: 'Cursive' },
 ];
 
-const colorOptionsWhiteCard = [
-  { value: 'text-blue', label: 'Blue' },
-  { value: 'text-black', label: 'Black' },
+const colorOptions = [
+  { value: 'text-indigo-600', label: 'Blue' },
+  { value: 'text-gray-800', label: 'Black' },
   { value: 'text-gold', label: 'Gold' },
   { value: 'text-silver', label: 'Silver' },
-];
-
-const colorOptionsDarkGrayCard = [
-  { value: 'text-blue', label: 'Blue' },
-  { value: 'text-gold', label: 'Gold' },
-  { value: 'text-silver', label: 'Silver' },
-  { value: 'text-pink', label: 'Bright Pink' },
-  { value: 'text-purple', label: 'Purple' },
+  { value: 'text-pink-400', label: 'Pink' },
+  { value: 'text-purple-400', label: 'Purple' },
 ];
 
 const cardColorOptions = [
@@ -49,34 +43,60 @@ const cardPrices: { [key: string]: { name: number; logo: number } } = {
 };
 
 interface OrderFormProps {
-  userType: 'individual' | 'business';
+  onBack: () => void;
 }
 
-const OrderForm: React.FC<OrderFormProps> = ({ userType }) => {
+const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
+  const [userType, setUserType] = useState<'individual' | 'business'>('individual');
   const [name, setName] = useState('');
+  const [employeeName, setEmployeeName] = useState('');
+  const [showEmployeeName, setShowEmployeeName] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
+  const [logoScale, setLogoScale] = useState(1);
   const [font, setFont] = useState('Arial');
   const [size, setSize] = useState(16);
-  const [color, setColor] = useState('text-black');
-  const [cardColor, setCardColor] = useState('bg-white');
+  const [color, setColor] = useState('text-gold');
+  const [cardColor, setCardColor] = useState('bg-dark-gray');
   const [socialMedia, setSocialMedia] = useState<string[]>([]);
   const [link, setLink] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [cardOption, setCardOption] = useState(1);
   const [addQrCode, setAddQrCode] = useState(false);
+  const [showQrCode, setShowQrCode] = useState(false);
   const [qrCode, setQrCode] = useState('');
   const [error, setError] = useState('');
   const [isDefault, setIsDefault] = useState(true);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isValidUrl, setIsValidUrl] = useState(true);
+  const [iconSize, setIconSize] = useState(24);
+  const [showCardPreview, setShowCardPreview] = useState(true);
+  const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (cardColor === 'bg-white') {
-      setColor('text-blue');
+      setColor('text-indigo-600');
     } else if (cardColor === 'bg-dark-gray') {
       setColor('text-gold');
     }
   }, [cardColor]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (formRef.current) {
+        const { bottom } = formRef.current.getBoundingClientRect();
+        const isNearBottom = bottom <= window.innerHeight + 100;
+        if (isNearBottom) {
+          setShowCardPreview(false);
+        } else {
+          setShowCardPreview(true);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSocialMediaChange = (value: string) => {
     setSocialMedia((prev) =>
@@ -87,10 +107,6 @@ const OrderForm: React.FC<OrderFormProps> = ({ userType }) => {
 
   const handleCardOptionChange = (value: number) => {
     setCardOption(value);
-  };
-
-  const handleQrCodeChange = () => {
-    setAddQrCode(!addQrCode);
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,11 +121,42 @@ const OrderForm: React.FC<OrderFormProps> = ({ userType }) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateUrl = (url: string) => {
+    const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    return !!pattern.test(url);
+  };
+
+  const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newLink = e.target.value;
+    setLink(newLink);
+    setIsValidUrl(validateUrl(newLink));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (error) return;
+
+    if (!name && userType === 'business') {
+      setError('Please enter a company name.');
+      return;
+    }
+
+    if (!name && userType === 'individual') {
+      setError('Please enter your name.');
+      return;
+    }
+
     const formData = {
+      userType,
       name,
+      employeeName: showEmployeeName ? employeeName : '',
       logo,
+      logoScale,
       font,
       size,
       color,
@@ -120,237 +167,396 @@ const OrderForm: React.FC<OrderFormProps> = ({ userType }) => {
       phoneNumber,
       cardOption,
       addQrCode,
+      showQrCode,
+      qrCode,
+      iconSize
     };
 
-    if (error) {
-      return;
+    try {
+      await sendOrderEmail(formData);
+      await sendSMS(phoneNumber, "Your SwiftCard order has been received!");
+      alert("Order submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      alert("There was an error submitting your order. Please try again.");
     }
-
-    console.log(formData);
   };
-
-  const price = cardPrices[userType][logo ? 'logo' : 'name'] * cardOption;
 
   const handleSwipe = () => {
     setIsFlipped(!isFlipped);
   };
 
-  const getColorOptions = () => {
-    return cardColor === 'bg-white' ? colorOptionsWhiteCard : colorOptionsDarkGrayCard;
-  };
+  const price = cardPrices[userType][logo ? 'logo' : 'name'] * cardOption + (addQrCode ? 3 : 0);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-light-gray p-4">
-      <div className="flex flex-col lg:flex-row lg:space-x-12 w-full lg:w-3/4 mt-8">
-        <div className="lg:w-1/2 flex justify-center lg:justify-end mb-8 lg:mb-0">
-          <Card
-            name={name}
-            font={font}
-            size={size}
-            color={color}
-            cardColor={cardColor}
-            socialMedia={socialMedia}
-            isFlipped={isFlipped}
-            addQrCode={addQrCode}
-            qrCode={qrCode}
-            isDefault={isDefault}
-            handleSwipe={handleSwipe}
-            setError={setError}
-          />
-        </div>
-        <div className="lg:w-1/2 bg-white p-6 rounded-lg shadow-md">
-          {error && <div className="mb-4 text-red-500 font-bold">{error}</div>}
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-lg font-bold mb-1 text-black">Card Color</label>
-              <select
-                className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
-                value={cardColor}
-                onChange={(e) => setCardColor(e.target.value)}
-              >
-                {cardColorOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {userType === 'individual' ? (
-              <div className="mb-4">
-                <label className="block text-lg font-bold mb-1 text-black">Name</label>
+    <div className="py-12 px-4 bg-white" ref={formRef}>
+      <div className="max-w-7xl mx-auto">
+        <button
+          onClick={onBack}
+          className="mb-6 flex items-center text-indigo-600 hover:text-blue-600 transition duration-300"
+        >
+          <FaArrowLeft className="mr-2" /> Back to Home
+        </button>
+        <h2 className="text-4xl font-bold text-soft-blue mb-8 text-center">Create Your SwiftCard</h2>
+        <div className="flex flex-col lg:flex-row lg:space-x-12 lg:items-start">
+          <div className="lg:w-1/2 mb-8 lg:mb-0 order-form-fields">
+            {error && <div className="mb-4 text-red-500 font-bold">{error}</div>}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-lg font-bold mb-2 text-gray-700">Card Type</label>
+                <div className="flex space-x-4">
+                  <button
+                    type="button"
+                    className={`flex-1 py-2 px-4 rounded-lg flex items-center justify-center ${
+                      userType === 'individual' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+                    }`}
+                    onClick={() => setUserType('individual')}
+                  >
+                    <FaUser className="mr-2" /> Individual
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex-1 py-2 px-4 rounded-lg flex items-center justify-center ${
+                      userType === 'business' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+                    }`}
+                    onClick={() => setUserType('business')}
+                  >
+                    <FaBuilding className="mr-2" /> Business
+                  </button>
+                </div>
+              </div>
+
+              {userType === 'individual' ? (
+                <div>
+                  <label className="block text-lg font-bold mb-2 text-gray-700">Name</label>
+                  <input
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                    type="text"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      setIsDefault(false);
+                    }}
+                    placeholder="Enter your name"
+                  />
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-lg font-bold mb-2 text-gray-700">Company Name</label>
+                    <input
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                      type="text"
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        setIsDefault(false);
+                      }}
+                      placeholder="Enter company name"
+                    />
+                  </div>
+                  <div className="flex items-center mt-4">
+                    <input
+                      type="checkbox"
+                      id="showEmployeeName"
+                      checked={showEmployeeName}
+                      onChange={() => setShowEmployeeName(!showEmployeeName)}
+                      className="mr-2 focus:ring-2 focus:ring-soft-blue"
+                    />
+                    <label className="text-lg text-gray-700" htmlFor="showEmployeeName">
+                      Add Employee Name (Optional)
+                    </label>
+                  </div>
+                  {showEmployeeName && (
+                    <div>
+                      <label className="block text-lg font-bold mb-2 text-gray-700">Employee Name (Optional)</label>
+                      <input
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                        type="text"
+                        value={employeeName}
+                        onChange={(e) => {
+                          setEmployeeName(e.target.value);
+                          setIsDefault(false);
+                        }}
+                        placeholder="Enter employee name"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-lg font-bold mb-2 text-gray-700">Logo</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-lg font-bold mb-2 text-gray-700">Logo Scale</label>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="1.5"
+                      step="0.1"
+                      value={logoScale}
+                      onChange={(e) => setLogoScale(parseFloat(e.target.value))}
+                      className="w-full"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-lg font-bold mb-2 text-gray-700">Card Color</label>
+                  <select
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                    value={cardColor}
+                    onChange={(e) => setCardColor(e.target.value)}
+                  >
+                    {cardColorOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-lg font-bold mb-2 text-gray-700">Text Color</label>
+                  <select
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
+                  >
+                    {colorOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-lg font-bold mb-2 text-gray-700">Font</label>
+                  <select className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                    value={font}
+                    onChange={(e) => setFont(e.target.value)}
+                  >
+                    {fontOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-lg font-bold mb-2 text-gray-700">Font Size</label>
+                  <input
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                    type="number"
+                    min="10"
+                    max="60"
+                    value={size}
+                    onChange={(e) => setSize(Number(e.target.value))}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-lg font-bold mb-2 text-gray-700">Social Media</label>
+                <div className="flex flex-wrap gap-2">
+                  {socialMediaOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleSocialMediaChange(option.value)}
+                      className={`p-2 rounded-lg flex items-center ${
+                        socialMedia.includes(option.value)
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      {option.icon}
+                      <span className="ml-2">{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {userType === 'business' && (
+                <div>
+                  <label className="block text-lg font-bold mb-2 text-gray-700">Icon Size</label>
+                  <input
+                    type="range"
+                    min="16"
+                    max="48"
+                    value={iconSize}
+                    onChange={(e) => setIconSize(Number(e.target.value))}
+                    className="w-full"
+                  />
+                  <div className="text-center mt-2">{iconSize}px</div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-lg font-bold mb-2 text-gray-700">Link for Card</label>
                 <input
-                  className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full p-2 border ${
+                    isValidUrl ? 'border-gray-300' : 'border-red-500'
+                  } rounded-lg focus:ring-2 focus:ring-soft-blue`}
                   type="text"
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    setIsDefault(false);
-                  }}
-                  placeholder="Enter your name"
+                  value={link}
+                  onChange={handleLinkChange}
+                  placeholder="Enter the link for the card"
+                  required
+                />
+                {!isValidUrl && <p className="text-red-500 mt-1">Please enter a valid URL</p>}
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="addQrCode"
+                  checked={addQrCode}
+                  onChange={() => setAddQrCode(!addQrCode)}
+                  className="mr-2 focus:ring-2 focus:ring-soft-blue"
+                />
+                <label className="text-lg font-bold text-gray-700" htmlFor="addQrCode">
+                  Add a QR code to the back of the card +$3
+                </label>
+              </div>
+
+              {addQrCode && (
+                <>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="showQrCode"
+                      checked={showQrCode}
+                      onChange={() => setShowQrCode(!showQrCode)}
+                      className="mr-2 focus:ring-2 focus:ring-soft-blue"
+                    />
+                    <label className="text-lg font-bold text-gray-700" htmlFor="showQrCode">
+                      Show QR code on back of card
+                    </label>
+                  </div>
+                  <div>
+                    <QRCodeGenerator link={link} setQrCode={setQrCode} color={color} />
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label className="block text-lg font-bold mb-2 text-gray-700">Number of Cards</label>
+                <div className="flex items-center space-x-4">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    onClick={() => handleCardOptionChange(Math.max(cardOption - 1, 1))}
+                  >
+                    -
+                  </button>
+                  <span className="text-2xl font-bold">{cardOption}</span>
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    onClick={() => handleCardOptionChange(Math.min(cardOption + 1, 5))}
+                  >
+                    +
+                  </button>
+                </div>
+                <p className="text-lg text-gray-700 mt-2">
+                  {cardOption === 1
+                    ? `$${price.toFixed(2)}`
+                    : `Total: $${price.toFixed(2)} ($${(price / cardOption).toFixed(2)} per card)`}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-lg font-bold mb-2 text-gray-700">Email</label>
+                <input
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
                   required
                 />
               </div>
-            ) : (
-              <div className="mb-4">
-                <label className="block text-lg font-bold mb-1 text-black">Logo</label>
+
+              <div>
+                <label className="block text-lg font-bold mb-2 text-gray-700">Phone Number</label>
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Enter your phone number"
                   required
                 />
               </div>
-            )}
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              <div>
-                <label className="block text-lg font-bold mb-1 text-black">Font</label>
-                <select
-                  className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
-                  value={font}
-                  onChange={(e) => setFont(e.target.value)}
-                >
-                  {fontOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-lg font-bold mb-1 text-black">Size</label>
-                <input
-                  className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
-                  type="range"
-                  min="10"
-                  max="60"
-                  value={size}
-                  onChange={(e) => setSize(Number(e.target.value))}
-                />
-              </div>
-              <div>
-                <label className="block text-lg font-bold mb-1 text-black">Color</label>
-                <select
-                  className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                >
-                  {getColorOptions().map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-lg font-bold mb-1 text-black">Social Media</label>
-              <select
-                className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
-                onChange={(e) => {
-                  handleSocialMediaChange(e.target.value);
-                  setIsDefault(false);
-                }}
+
+              <button
+                className="w-full p-3 bg-indigo-600 text-white text-lg font-bold rounded-lg hover:bg-indigo-700 transition-colors"
+                type="submit"
               >
-                <option value="">Select Social Media</option>
-                {socialMediaOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {socialMedia.map((icon) => (
-                  <span key={icon} className="bg-blue-500 text-white px-2 py-1 rounded-lg">
-                    {socialMediaOptions.find((opt) => opt.value === icon)?.label}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-lg font-bold mb-1 text-black">Link</label>
-              <input
-                className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
-                type="text"
-                value={link}
-                onChange={(e) => setLink(e.target.value)}
-                placeholder="Enter the link for the NFC card"
-                required
-              />
-            </div>
-            <div className="mb-4 flex items-center">
-              <input
-                type="checkbox"
-                id="addQrCode"
-                checked={addQrCode}
-                onChange={handleQrCodeChange}
-                className="mr-2 focus:ring focus:ring-blue-500 focus:border-blue-500"
-              />
-              <label className="text-lg font-bold text-black" htmlFor="addQrCode">
-                Add a QR code to the back of the card +$3
-              </label>
-            </div>
-            {addQrCode && (
-              <div className="flex justify-center mb-4">
-                <QRCodeGenerator link={link} setQrCode={setQrCode} addQrCode={addQrCode} color={color} />
-                {qrCode && <img src={qrCode} alt="QR Code" className="w-32 h-32" />}
-              </div>
-            )}
-            <div className="mb-4">
-              <label className="block text-lg font-bold mb-1 text-black">Number of Cards</label>
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  onClick={() => handleCardOptionChange(Math.max(cardOption - 1, 1))}
-                >
-                  -
-                </button>
-                <span className="text-lg">{cardOption}</span>
-                <button
-                  type="button"
-                  className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  onClick={() => handleCardOptionChange(Math.min(cardOption + 1, 5))}
-                >
-                  +
-                </button>
-              </div>
-              <p className="text-lg text-black mt-2">
-                {cardOption === 1
-                  ? `$${price.toFixed(2)}`
-                  : `Total: $${price.toFixed(2)} ($${(price / cardOption).toFixed(2)} per card)`}
-              </p>
-            </div>
-            <div className="mb-4">
-              <label className="block text-lg font-bold mb-1 text-black">Email</label>
-              <input
-                className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-lg font-bold mb-1 text-black">Phone Number</label>
-              <input
-                className="w-full p-2 border border-gray-300 rounded-lg bg-transparent text-black focus:ring focus:ring-blue-500 focus:border-blue-500"
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="Enter your phone number"
-                required
-              />
-            </div>
-            <button
-              className="w-full p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              type="submit"
-            >
-              Send Order
-            </button>
-          </form>
+                Place Order
+              </button>
+            </form>
+          </div>
+          <div className="lg:w-1/2 hidden lg:block lg:sticky lg:top-8">
+            <Card
+              companyName={userType === 'individual' ? name : name}
+              employeeName={userType === 'business' && showEmployeeName ? employeeName : ''}
+              font={font}
+              size={size}
+              color={color}
+              cardColor={cardColor}
+              socialMedia={socialMedia}
+              isFlipped={isFlipped}
+              addQrCode={addQrCode}
+              showQrCode={showQrCode}
+              qrCode={qrCode}
+              isDefault={isDefault}
+              handleSwipe={handleSwipe}
+              setError={setError}
+              userType={userType}
+              logo={logo}
+              logoScale={logoScale}
+              iconSize={iconSize}
+            />
+          </div>
         </div>
+      </div>
+      <div className={`fixed inset-x-0 bottom-0 p-4 bg-white bg-opacity-90 shadow-md transition-all duration-300 ease-in-out ${showCardPreview ? 'translate-y-0' : 'translate-y-full'} lg:hidden`}>
+        <button
+          onClick={() => setShowCardPreview(!showCardPreview)}
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full bg-white rounded-t-lg px-4 py-2 flex items-center justify-center shadow-md"
+        >
+          {showCardPreview ? <FaChevronDown /> : <FaChevronUp />}
+        </button>
+        <Card
+          companyName={userType === 'individual' ? name : name}
+          employeeName={userType === 'business' && showEmployeeName ? employeeName : ''}
+          font={font}
+          size={size}
+          color={color}
+          cardColor={cardColor}
+          socialMedia={socialMedia}
+          isFlipped={isFlipped}
+          addQrCode={addQrCode}
+          showQrCode={showQrCode}
+          qrCode={qrCode}
+          isDefault={isDefault}
+          handleSwipe={handleSwipe}
+          setError={setError}
+          userType={userType}
+          logo={logo}
+          logoScale={logoScale}
+          iconSize={iconSize}
+        />
       </div>
     </div>
   );
