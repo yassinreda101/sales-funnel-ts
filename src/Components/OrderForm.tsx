@@ -140,17 +140,17 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (error) return;
-  
+
     if (!name && userType === 'business') {
       setError('Please enter a company name.');
       return;
     }
-  
+
     if (!name && userType === 'individual') {
       setError('Please enter your name.');
       return;
     }
-  
+
     const formData = {
       userType,
       name,
@@ -172,13 +172,19 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
       iconSize,
       price
     };
-  
+
     try {
-      await sendOrderEmail(formData);
+      console.log('Submitting order with data:', formData);
+      const response = await sendOrderEmail(formData);
+      console.log('Order submission response:', response);
       alert("Order submitted successfully! Check your email and phone for confirmation.");
     } catch (error) {
-      console.error("Error submitting order:", error);
-      alert("There was an error submitting your order. Please try again.");
+      console.error("Detailed error submitting order:", error);
+      if (error instanceof Error) {
+        alert(`Error submitting order: ${error.message}`);
+      } else {
+        alert("There was an unknown error submitting your order. Please try again.");
+      }
     }
   };
 
