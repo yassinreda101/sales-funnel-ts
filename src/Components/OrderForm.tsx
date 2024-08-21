@@ -3,7 +3,7 @@ import { FaUser, FaBuilding, FaArrowLeft, FaFacebook, FaInstagram, FaLinkedin, F
 import { TbLetterX } from 'react-icons/tb';
 import Card from './Card';
 import QRCodeGenerator from './QRCodeGenerator';
-import { sendOrderEmail, sendSMS } from '../api';
+import { sendOrderEmail } from '../api';
 
 const socialMediaOptions = [
   { value: 'facebook', label: 'Facebook', icon: <FaFacebook /> },
@@ -140,17 +140,17 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (error) return;
-
+  
     if (!name && userType === 'business') {
       setError('Please enter a company name.');
       return;
     }
-
+  
     if (!name && userType === 'individual') {
       setError('Please enter your name.');
       return;
     }
-
+  
     const formData = {
       userType,
       name,
@@ -169,13 +169,13 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
       addQrCode,
       showQrCode,
       qrCode,
-      iconSize
+      iconSize,
+      price
     };
-
+  
     try {
       await sendOrderEmail(formData);
-      await sendSMS(phoneNumber, "Your SwiftCard order has been received!");
-      alert("Order submitted successfully!");
+      alert("Order submitted successfully! Check your email and phone for confirmation.");
     } catch (error) {
       console.error("Error submitting order:", error);
       alert("There was an error submitting your order. Please try again.");

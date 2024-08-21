@@ -50,7 +50,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               number={1}
               title="Customize Your Card"
               description="Design your digital card with your personal link and info"
-              imageSrc="/api/placeholder/400/300"
+              imageSrc="\src\images\step1.png"
               imageAlt="Customize your SwiftCard"
             />
             <StepCard
