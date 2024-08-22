@@ -46,7 +46,12 @@ exports.handler = async (event, context) => {
       }
     });
 
-    // Admin email remains the same as before
+    // Prepare the logo HTML if a logo is present
+    const logoHtml = orderDetails.logo 
+      ? `<img src="${orderDetails.logo}" alt="Company Logo" style="max-width: 200px; max-height: 200px; margin-bottom: 20px;">`
+      : '';
+
+    // Admin email with all order details and embedded logo
     const adminEmailHtml = `
     <html>
       <head>
@@ -61,12 +66,15 @@ exports.handler = async (event, context) => {
       <body>
         <div class="container">
           <h1>New SwiftCard Order Received</h1>
+          ${logoHtml}
           <div class="order-details">
             <h2>Order Details:</h2>
             <ul>
-              ${Object.entries(orderDetails).map(([key, value]) => `
-                <li><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</li>
-              `).join('')}
+              ${Object.entries(orderDetails).map(([key, value]) => {
+                // Skip the logo in this list as we're displaying it separately
+                if (key === 'logo') return '';
+                return `<li><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</li>`;
+              }).join('')}
             </ul>
             <p><strong>Customer Email:</strong> ${email}</p>
           </div>
