@@ -14,6 +14,37 @@ const getCardColorString = (cardColorClass) => {
   return 'Not specified';
 };
 
+// Helper function to generate a simple text-based card preview
+const generateCardPreview = (orderDetails) => {
+  const name = orderDetails.name || orderDetails.companyName || 'Your Name';
+  const socialMedia = orderDetails.socialMedia || [];
+  const link = orderDetails.link || 'your-link.com';
+
+  // Generate social media icons
+  const socialIcons = socialMedia.map(platform => {
+    switch(platform.toLowerCase()) {
+      case 'facebook': return 'f';
+      case 'instagram': return 'i';
+      case 'linkedin': return 'l';
+      case 'twitter': return 't';
+      case 'x': return 'x';
+      default: return '*';
+    }
+  }).join(' ');
+
+  return `
++-----------------------------+
+|                             |
+|  ${name.padEnd(27)}|
+|                             |
+|  ${socialIcons.padEnd(27)}|
+|                             |
+|  ${link.padEnd(27)}|
+|                             |
++-----------------------------+
+  `;
+};
+
 exports.handler = async (event, context) => {
   console.log('Received event:', event);
   
@@ -46,7 +77,7 @@ exports.handler = async (event, context) => {
       }
     });
 
-    // Admin email remains the same as before
+    // Admin email with all order details
     const adminEmailHtml = `
     <html>
       <head>
@@ -87,7 +118,9 @@ exports.handler = async (event, context) => {
       html: adminEmailHtml
     });
 
-    // Simplified client email with relevant details including link and fixed card color
+    const cardPreview = generateCardPreview(orderDetails);
+
+    // Simplified client email with relevant details including link, fixed card color, and card preview
     const clientEmailHtml = `
     <html>
       <head>
@@ -96,6 +129,7 @@ exports.handler = async (event, context) => {
           .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; }
           h1 { color: #4F46E5; }
           .order-details { background-color: #f4f4f4; padding: 15px; border-radius: 5px; }
+          .card-preview { font-family: monospace; white-space: pre; background-color: #e0e0e0; padding: 10px; border-radius: 5px; }
           .footer { margin-top: 20px; font-size: 0.9em; color: #666; }
         </style>
       </head>
@@ -114,6 +148,11 @@ exports.handler = async (event, context) => {
               <li><strong>Price:</strong> $${orderDetails.price || 'Not specified'}</li>
             </ul>
           </div>
+          <h2>Card Preview:</h2>
+          <div class="card-preview">
+${cardPreview}
+          </div>
+          <p>Please note that this is a simplified preview. Your actual card will be professionally designed and may vary in appearance.</p>
           <p>We're processing your order and will update you on its status soon. If you have any questions, please don't hesitate to contact us.</p>
           <p>Thank you for choosing SwiftCard!</p>
           <div class="footer">
