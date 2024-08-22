@@ -14,37 +14,6 @@ const getCardColorString = (cardColorClass) => {
   return 'Not specified';
 };
 
-// Helper function to generate an HTML-based card preview
-const generateCardPreview = (orderDetails) => {
-  const name = orderDetails.name || orderDetails.companyName || 'Your Name';
-  const socialMedia = orderDetails.socialMedia || [];
-  const link = orderDetails.link || 'your-link.com';
-
-  // Generate social media icons
-  const socialIcons = socialMedia.map(platform => {
-    switch(platform.toLowerCase()) {
-      case 'facebook': return 'FB';
-      case 'instagram': return 'IG';
-      case 'linkedin': return 'LI';
-      case 'twitter': return 'TW';
-      case 'x': return 'X';
-      default: return '*';
-    }
-  }).join(' ');
-
-  return `
-    <table style="width: 300px; border: 1px solid #ccc; border-radius: 10px; overflow: hidden; font-family: Arial, sans-serif;">
-      <tr>
-        <td style="background-color: #f0f0f0; padding: 20px; text-align: center;">
-          <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">${name}</div>
-          <div style="font-size: 14px; margin-bottom: 10px;">${socialIcons}</div>
-          <div style="font-size: 14px;">${link}</div>
-        </td>
-      </tr>
-    </table>
-  `;
-};
-
 exports.handler = async (event, context) => {
   console.log('Received event:', event);
   
@@ -77,11 +46,48 @@ exports.handler = async (event, context) => {
       }
     });
 
-    // Admin email remains the same...
+    // Admin email remains the same as before
+    const adminEmailHtml = `
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; }
+          h1 { color: #4F46E5; }
+          .order-details { background-color: #f4f4f4; padding: 15px; border-radius: 5px; }
+          .footer { margin-top: 20px; font-size: 0.9em; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>New SwiftCard Order Received</h1>
+          <div class="order-details">
+            <h2>Order Details:</h2>
+            <ul>
+              ${Object.entries(orderDetails).map(([key, value]) => `
+                <li><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</li>
+              `).join('')}
+            </ul>
+            <p><strong>Customer Email:</strong> ${email}</p>
+          </div>
+          <div class="footer">
+            <p>Please process this order promptly.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+    `;
 
-    const cardPreview = generateCardPreview(orderDetails);
+    // Send formatted email to admin
+    console.log('Sending email to admin:', adminEmail);
+    await transporter.sendMail({
+      from: `"SwiftCard Orders" <${process.env.EMAIL_USER}>`,
+      to: adminEmail,
+      subject: 'New SwiftCard Order',
+      html: adminEmailHtml
+    });
 
-    // Simplified client email with relevant details including link, fixed card color, and HTML card preview
+    // Simplified client email with relevant details including link and fixed card color
     const clientEmailHtml = `
     <html>
       <head>
@@ -90,7 +96,6 @@ exports.handler = async (event, context) => {
           .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; }
           h1 { color: #4F46E5; }
           .order-details { background-color: #f4f4f4; padding: 15px; border-radius: 5px; }
-          .card-preview { margin-top: 20px; }
           .footer { margin-top: 20px; font-size: 0.9em; color: #666; }
         </style>
       </head>
@@ -109,11 +114,6 @@ exports.handler = async (event, context) => {
               <li><strong>Price:</strong> $${orderDetails.price || 'Not specified'}</li>
             </ul>
           </div>
-          <h2>Card Preview:</h2>
-          <div class="card-preview">
-            ${cardPreview}
-          </div>
-          <p>Please note that this is a simplified preview. Your actual card will be professionally designed and may vary in appearance.</p>
           <p>We're processing your order and will update you on its status soon. If you have any questions, please don't hesitate to contact us.</p>
           <p>Thank you for choosing SwiftCard!</p>
           <div class="footer">
