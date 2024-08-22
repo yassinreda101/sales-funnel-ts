@@ -8,7 +8,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { email, qrCode, ...orderDetails } = JSON.parse(event.body);
+    const { email, ...orderDetails } = JSON.parse(event.body);
 
     console.log('Parsed order details:', { email, ...orderDetails });
 
@@ -32,7 +32,7 @@ exports.handler = async (event, context) => {
       }
     });
 
-    // Prepare a formatted HTML email for the admin
+    // Admin email remains the same as before
     const adminEmailHtml = `
     <html>
       <head>
@@ -73,7 +73,7 @@ exports.handler = async (event, context) => {
       html: adminEmailHtml
     });
 
-    // Prepare a nicely formatted HTML email for the client
+    // Simplified client email with only relevant details
     const clientEmailHtml = `
     <html>
       <head>
@@ -89,17 +89,14 @@ exports.handler = async (event, context) => {
         <div class="container">
           <h1>Thank You for Your SwiftCard Order!</h1>
           <p>Dear valued customer,</p>
-          <p>We're excited to confirm that we've received your SwiftCard order. Here are the details of your purchase:</p>
+          <p>We're excited to confirm that we've received your SwiftCard order. Here are the key details of your purchase:</p>
           <div class="order-details">
-            <h2>Order Details:</h2>
+            <h2>Order Summary:</h2>
             <ul>
-              ${Object.entries(orderDetails).map(([key, value]) => {
-                // Exclude the QR code from the email
-                if (key !== 'qrCode') {
-                  return `<li><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</li>`;
-                }
-                return '';
-              }).join('')}
+              <li><strong>Name:</strong> ${orderDetails.name || orderDetails.companyName || 'Not specified'}</li>
+              <li><strong>Card Color:</strong> ${orderDetails.cardColor || 'Not specified'}</li>
+              <li><strong>Social Media:</strong> ${orderDetails.socialMedia ? orderDetails.socialMedia.join(', ') : 'None'}</li>
+              <li><strong>Price:</strong> $${orderDetails.price || 'Not specified'}</li>
             </ul>
           </div>
           <p>We're processing your order and will update you on its status soon. If you have any questions, please don't hesitate to contact us.</p>
