@@ -1,5 +1,17 @@
 const nodemailer = require('nodemailer');
 
+// Helper function to convert card color class to user-friendly string
+const getCardColorString = (cardColorClass) => {
+  switch (cardColorClass) {
+    case 'bg-white':
+      return 'White';
+    case 'bg-dark-gray':
+      return 'Black';
+    default:
+      return 'Not specified';
+  }
+};
+
 exports.handler = async (event, context) => {
   console.log('Received event:', event);
   
@@ -73,7 +85,7 @@ exports.handler = async (event, context) => {
       html: adminEmailHtml
     });
 
-    // Simplified client email with only relevant details
+    // Simplified client email with relevant details including link and fixed card color
     const clientEmailHtml = `
     <html>
       <head>
@@ -94,8 +106,9 @@ exports.handler = async (event, context) => {
             <h2>Order Summary:</h2>
             <ul>
               <li><strong>Name:</strong> ${orderDetails.name || orderDetails.companyName || 'Not specified'}</li>
-              <li><strong>Card Color:</strong> ${orderDetails.cardColor || 'Not specified'}</li>
+              <li><strong>Card Color:</strong> ${getCardColorString(orderDetails.cardColor)}</li>
               <li><strong>Social Media:</strong> ${orderDetails.socialMedia ? orderDetails.socialMedia.join(', ') : 'None'}</li>
+              <li><strong>Link:</strong> ${orderDetails.link || 'Not specified'}</li>
               <li><strong>Price:</strong> $${orderDetails.price || 'Not specified'}</li>
             </ul>
           </div>
