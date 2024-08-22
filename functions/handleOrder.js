@@ -12,7 +12,6 @@ exports.handler = async (event, context) => {
 
     console.log('Parsed order details:', { email, ...orderDetails });
 
-    // Use environment variable for admin email
     const adminEmail = process.env.ADMIN_EMAIL;
 
     if (!adminEmail) {
@@ -20,10 +19,20 @@ exports.handler = async (event, context) => {
       return { statusCode: 500, body: JSON.stringify({ message: 'Server configuration error: Admin email not set' }) };
     }
 
+    console.log('Creating transporter with config:', {
+      host: 'smtp-mail.outlook.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: 'PASSWORD_LENGTH: ' + (process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 'undefined')
+      }
+    });
+
     let transporter = nodemailer.createTransport({
       host: 'smtp-mail.outlook.com',
       port: 587,
-      secure: false, // Use TLS
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -33,23 +42,23 @@ exports.handler = async (event, context) => {
       }
     });
 
-    // Send email to admin
     console.log('Sending email to admin:', adminEmail);
-    await transporter.sendMail({
+    let adminEmailResult = await transporter.sendMail({
       from: `"SwiftCard Orders" <${process.env.EMAIL_USER}>`,
       to: adminEmail,
       subject: 'New SwiftCard Order',
       text: JSON.stringify(orderDetails, null, 2)
     });
+    console.log('Admin email sent:', adminEmailResult);
 
-    // Send confirmation email to client
     console.log('Sending confirmation email to client:', email);
-    await transporter.sendMail({
+    let clientEmailResult = await transporter.sendMail({
       from: `"SwiftCard" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Your SwiftCard Order Confirmation',
       text: `Thank you for your order! We've received the following details:\n\n${JSON.stringify(orderDetails, null, 2)}`
     });
+    console.log('Client email sent:', clientEmailResult);
 
     console.log('Order processed successfully');
     return {
