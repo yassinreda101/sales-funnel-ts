@@ -8,7 +8,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { email, ...orderDetails } = JSON.parse(event.body);
+    const { email, qrCode, ...orderDetails } = JSON.parse(event.body);
 
     console.log('Parsed order details:', { email, ...orderDetails });
 
@@ -32,13 +32,45 @@ exports.handler = async (event, context) => {
       }
     });
 
-    // Send email to admin (keeping it simple for admin)
+    // Prepare a formatted HTML email for the admin
+    const adminEmailHtml = `
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; }
+          h1 { color: #4F46E5; }
+          .order-details { background-color: #f4f4f4; padding: 15px; border-radius: 5px; }
+          .footer { margin-top: 20px; font-size: 0.9em; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>New SwiftCard Order Received</h1>
+          <div class="order-details">
+            <h2>Order Details:</h2>
+            <ul>
+              ${Object.entries(orderDetails).map(([key, value]) => `
+                <li><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</li>
+              `).join('')}
+            </ul>
+            <p><strong>Customer Email:</strong> ${email}</p>
+          </div>
+          <div class="footer">
+            <p>Please process this order promptly.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+    `;
+
+    // Send formatted email to admin
     console.log('Sending email to admin:', adminEmail);
     await transporter.sendMail({
       from: `"SwiftCard Orders" <${process.env.EMAIL_USER}>`,
       to: adminEmail,
       subject: 'New SwiftCard Order',
-      text: JSON.stringify(orderDetails, null, 2)
+      html: adminEmailHtml
     });
 
     // Prepare a nicely formatted HTML email for the client
@@ -61,9 +93,13 @@ exports.handler = async (event, context) => {
           <div class="order-details">
             <h2>Order Details:</h2>
             <ul>
-              ${Object.entries(orderDetails).map(([key, value]) => `
-                <li><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</li>
-              `).join('')}
+              ${Object.entries(orderDetails).map(([key, value]) => {
+                // Exclude the QR code from the email
+                if (key !== 'qrCode') {
+                  return `<li><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</li>`;
+                }
+                return '';
+              }).join('')}
             </ul>
           </div>
           <p>We're processing your order and will update you on its status soon. If you have any questions, please don't hesitate to contact us.</p>
