@@ -19,16 +19,6 @@ exports.handler = async (event, context) => {
       return { statusCode: 500, body: JSON.stringify({ message: 'Server configuration error: Admin email not set' }) };
     }
 
-    console.log('Creating transporter with config:', {
-      host: 'smtp-mail.outlook.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: 'PASSWORD_LENGTH: ' + (process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 'undefined')
-      }
-    });
-
     let transporter = nodemailer.createTransport({
       host: 'smtp-mail.outlook.com',
       port: 587,
@@ -42,23 +32,58 @@ exports.handler = async (event, context) => {
       }
     });
 
+    // Send email to admin (keeping it simple for admin)
     console.log('Sending email to admin:', adminEmail);
-    let adminEmailResult = await transporter.sendMail({
+    await transporter.sendMail({
       from: `"SwiftCard Orders" <${process.env.EMAIL_USER}>`,
       to: adminEmail,
       subject: 'New SwiftCard Order',
       text: JSON.stringify(orderDetails, null, 2)
     });
-    console.log('Admin email sent:', adminEmailResult);
 
+    // Prepare a nicely formatted HTML email for the client
+    const clientEmailHtml = `
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; }
+          h1 { color: #4F46E5; }
+          .order-details { background-color: #f4f4f4; padding: 15px; border-radius: 5px; }
+          .footer { margin-top: 20px; font-size: 0.9em; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Thank You for Your SwiftCard Order!</h1>
+          <p>Dear valued customer,</p>
+          <p>We're excited to confirm that we've received your SwiftCard order. Here are the details of your purchase:</p>
+          <div class="order-details">
+            <h2>Order Details:</h2>
+            <ul>
+              ${Object.entries(orderDetails).map(([key, value]) => `
+                <li><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</li>
+              `).join('')}
+            </ul>
+          </div>
+          <p>We're processing your order and will update you on its status soon. If you have any questions, please don't hesitate to contact us.</p>
+          <p>Thank you for choosing SwiftCard!</p>
+          <div class="footer">
+            <p>Best regards,<br>The SwiftCard Team</p>
+          </div>
+        </div>
+      </body>
+    </html>
+    `;
+
+    // Send confirmation email to client
     console.log('Sending confirmation email to client:', email);
-    let clientEmailResult = await transporter.sendMail({
+    await transporter.sendMail({
       from: `"SwiftCard" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Your SwiftCard Order Confirmation',
-      text: `Thank you for your order! We've received the following details:\n\n${JSON.stringify(orderDetails, null, 2)}`
+      html: clientEmailHtml
     });
-    console.log('Client email sent:', clientEmailResult);
 
     console.log('Order processed successfully');
     return {
