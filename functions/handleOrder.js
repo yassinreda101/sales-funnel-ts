@@ -2,14 +2,16 @@ const nodemailer = require('nodemailer');
 
 // Helper function to convert card color class to user-friendly string
 const getCardColorString = (cardColorClass) => {
-  switch (cardColorClass) {
-    case 'bg-white':
-      return 'White';
-    case 'bg-dark-gray':
-      return 'Black';
-    default:
-      return 'Not specified';
+  if (typeof cardColorClass !== 'string') {
+    return 'Not specified';
   }
+  if (cardColorClass.includes('white')) {
+    return 'White';
+  }
+  if (cardColorClass.includes('dark-gray')) {
+    return 'Black';
+  }
+  return 'Not specified';
 };
 
 exports.handler = async (event, context) => {
