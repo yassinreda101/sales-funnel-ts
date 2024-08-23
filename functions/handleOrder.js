@@ -94,7 +94,6 @@ exports.handler = async (event, context) => {
       html: adminEmailHtml
     });
 
-    // Simplified client email with relevant details including link, fixed card color, and delivery information
     const clientEmailHtml = `
     <html>
       <head>
@@ -109,7 +108,6 @@ exports.handler = async (event, context) => {
       <body>
         <div class="container">
           <h1>Thank You for Your SwiftCard Order!</h1>
-          <p>Dear valued customer,</p>
           <p>We're excited to confirm that we've received your SwiftCard order. Here are the key details of your purchase:</p>
           <div class="order-details">
             <h2>Order Summary:</h2>
@@ -122,13 +120,13 @@ exports.handler = async (event, context) => {
             </ul>
           </div>
           <div class="delivery-info">
-            <h2>Delivery and Pickup Options:</h2>
+            <h2>Delivery and Payment Options:</h2>
             <p>We offer two convenient options for receiving your SwiftCard:</p>
             <ol>
-              <li><strong>Personal Delivery:</strong> We can arrange a delivery anywhere in Atlanta. Our team will reach out to you directly via text message to coordinate a suitable time and location.</li>
+              <li><strong>Personal Delivery (Free within Atlanta):</strong> We can arrange a free delivery anywhere in Atlanta. Our team will reach out to you via text message on the phone number you provided to discuss your order and coordinate a suitable time and location.</li>
               <li><strong>Georgia Tech Pickup:</strong> You can pick up your order on Wednesdays in front of the Student Center at Georgia Tech.</li>
             </ol>
-            <p>Our team will contact you shortly via text message to confirm your preferred option and arrange the details.</p>
+            <p><strong>Payment:</strong> Please note that payment is made in person at the time of delivery or pickup. We accept all forms of payment.</p>
           </div>
           <p>We're processing your order and will update you on its status soon. If you have any questions, please don't hesitate to contact us.</p>
           <p>Thank you for choosing SwiftCard!</p>
@@ -139,7 +137,7 @@ exports.handler = async (event, context) => {
       </body>
     </html>
     `;
-
+    
     // Send confirmation email to client
     console.log('Sending confirmation email to client:', email);
     await transporter.sendMail({
