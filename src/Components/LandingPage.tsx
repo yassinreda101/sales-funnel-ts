@@ -1,6 +1,11 @@
 import React from 'react';
 import { FaArrowRight, FaMobileAlt, FaQrcode, FaNetworkWired } from 'react-icons/fa';
 
+// Import images (now with .png extension)
+import step1Img from '../images/step1.png'; // Adjust the path as needed
+import step2Img from '../images/step2.png';
+import step3Img from '../images/step3.png';
+
 interface LandingPageProps {
   onGetStarted: () => void;
 }
@@ -50,21 +55,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               number={1}
               title="Personalize Your Card"
               description="Design a card that reflects your brand, complete with your unique links and contact information."
-              imageSrc="\src\images\step1.png"
+              imageSrc={step1Img} // Use imported image here
               imageAlt="Customize your SwiftCard"
             />
             <StepCard
               number={2}
               title="Connect Instantly"
               description="Tap or scan to instantly share your details—no more fumbling with paper business cards."
-              imageSrc="/api/placeholder/400/300"
+              imageSrc={step2Img} // Use imported image here
               imageAlt="Tap to connect with SwiftCard"
             />
             <StepCard
               number={3}
               title="Build Lasting Impressions"
               description="Leave a memorable mark with a sleek, tech-savvy card designed for modern networking."
-              imageSrc="/api/placeholder/400/300"
+              imageSrc={step3Img} // Use imported image here
               imageAlt="Make connections with SwiftCard"
             />
           </div>
