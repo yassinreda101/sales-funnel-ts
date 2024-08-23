@@ -14,7 +14,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             Welcome to SwiftCard
           </h1>
           <p className="text-2xl text-gray-600 mb-8 animate-slide-in-top">
-            Create stunning digital business cards that leave a lasting impression.
+            Elevate your networking game with custom NFC business cards designed for Georgia Tech students and Atlanta professionals.
           </p>
           <button
             onClick={onGetStarted}
@@ -27,18 +27,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <FeatureCard
             icon={<FaMobileAlt className="text-5xl text-indigo-600 mb-4 mx-auto" />}
-            title="NFC Technology"
-            description="Instantly share your contact info with a simple tap"
+            title="NFC Convenience"
+            description="Share your info instantly with just a tap. Ideal for fast connections at career fairs and networking events."
           />
           <FeatureCard
             icon={<FaQrcode className="text-5xl text-indigo-600 mb-4 mx-auto" />}
-            title="QR Code Integration"
-            description="Easy sharing for those without NFC-enabled devices"
+            title="QR Code Access"
+            description="Ensure everyone can connect, even those without NFC-enabled devices. Perfect for seamless digital integration."
           />
           <FeatureCard
             icon={<FaNetworkWired className="text-5xl text-indigo-600 mb-4 mx-auto" />}
-            title="Digital Integration"
-            description="Link to your social profiles and website effortlessly"
+            title="Digital Portfolio"
+            description="Link your GitHub, LinkedIn, or personal portfolio. Impress recruiters and stand out in any crowd."
           />
         </div>
 
@@ -48,22 +48,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <StepCard
               number={1}
-              title="Customize Your Card"
-              description="Design your digital card with your personal link and info"
+              title="Personalize Your Card"
+              description="Design a card that reflects your brand, complete with your unique links and contact information."
               imageSrc="\src\images\step1.png"
               imageAlt="Customize your SwiftCard"
             />
             <StepCard
               number={2}
-              title="Tap to Connect"
-              description="Share your info instantly with a simple tap or scan"
+              title="Connect Instantly"
+              description="Tap or scan to instantly share your details—no more fumbling with paper business cards."
               imageSrc="/api/placeholder/400/300"
               imageAlt="Tap to connect with SwiftCard"
             />
             <StepCard
               number={3}
-              title="Make Connections"
-              description="Create memorable connections effortlessly"
+              title="Build Lasting Impressions"
+              description="Leave a memorable mark with a sleek, tech-savvy card designed for modern networking."
               imageSrc="/api/placeholder/400/300"
               imageAlt="Make connections with SwiftCard"
             />
@@ -73,10 +73,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-800 mb-6">Why Choose SwiftCard?</h2>
           <ul className="text-xl text-gray-600 space-y-4">
-            <li>✅ Professional design options for individuals and businesses</li>
-            <li>✅ Affordable pricing starting at just $5.99</li>
-            <li>✅ Easy to use online designer</li>
-            <li>✅ Fast, free shipping in Atlanta within 24 hours</li>
+            <li>✅ Tailored for Georgia Tech students and Atlanta professionals</li>
+            <li>✅ Affordable pricing starting at just $5.99—student-friendly</li>
+            <li>✅ Easy-to-use online designer—create your perfect card in minutes</li>
+            <li>✅ Fast, free delivery in Atlanta—pay upon receiving your card with multiple payment options</li>
           </ul>
         </div>
 
