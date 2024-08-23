@@ -25,11 +25,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           >
             Get Started <FaArrowRight className="ml-2" />
           </button>
-          <button
-            className="text-indigo-600 mt-4 underline hover:text-indigo-800 transition duration-300"
-          >
-            Learn More
-          </button>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
