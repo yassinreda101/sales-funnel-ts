@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
         
-        <div className="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-8">
+        <div className="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-8 mb-6">
           <div className="flex items-center">
             <FaShippingFast className="text-soft-blue mr-2" />
             <span>Fast, Free Shipping in ATL within 24 hours!</span>
@@ -57,6 +57,10 @@ const Footer: React.FC = () => {
             <FaDollarSign className="text-soft-blue mr-2" />
             <span>Most Affordable Options Available!</span>
           </div>
+        </div>
+
+        <div className="text-center text-gray-600">
+          <p>Contact us at <a href="mailto:swiftcardatl@outlook.com" className="text-indigo-600 underline">swiftcardatl@outlook.com</a> for inquiries and support.</p>
         </div>
       </div>
     </footer>
