@@ -67,7 +67,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             />
             <StepCard
               number={3}
-              title="Build Lasting Impressions"
+              title="Leave a Mark"
               description="Leave a memorable mark with a sleek, tech-savvy card designed for modern networking."
               imageSrc={step3Img} // Use imported image here
               imageAlt="Make connections with SwiftCard"
