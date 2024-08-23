@@ -71,6 +71,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
   const [isValidUrl, setIsValidUrl] = useState(true);
   const [iconSize, setIconSize] = useState(24);
   const [showCardPreview, setShowCardPreview] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -173,6 +174,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
       price
     };
 
+    setIsLoading(true);
+
     try {
       console.log('Submitting order with data:', formData);
       const response = await sendOrderEmail(formData);
@@ -185,6 +188,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
       } else {
         alert("There was an unknown error submitting your order. Please try again.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -505,10 +510,18 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
               </div>
 
               <button
-                className="w-full p-3 bg-indigo-600 text-white text-lg font-bold rounded-lg hover:bg-indigo-700 transition-colors"
+                className={`w-full p-3 bg-indigo-600 text-white text-lg font-bold rounded-lg hover:bg-indigo-700 transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 type="submit"
+                disabled={isLoading}
               >
-                Place Order
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="loader w-6 h-6 border-4 border-white border-solid rounded-full border-t-transparent animate-spin mr-2"></div>
+                    Processing...
+                  </div>
+                ) : (
+                  'Place Order'
+                )}
               </button>
             </form>
           </div>
