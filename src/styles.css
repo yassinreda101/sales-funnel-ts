@@ -519,3 +519,13 @@ textarea:disabled {
     page-break-inside: avoid;
   }
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader {
+  border-top-color: #4F46E5;
+  animation: spin 1s linear infinite;
+}
