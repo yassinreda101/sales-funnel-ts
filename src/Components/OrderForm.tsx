@@ -213,8 +213,10 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
           <div className="lg:w-1/2 mb-8 lg:mb-0 order-form-fields">
             {error && <div className="mb-4 text-red-500 font-bold">{error}</div>}
             <form onSubmit={handleSubmit} className="space-y-6">
+
               <div>
                 <label className="block text-lg font-bold mb-2 text-gray-700">Card Type</label>
+                <p className="text-gray-500 mb-4">Choose whether you want an individual or business card.</p>
                 <div className="flex space-x-4">
                   <button
                     type="button"
@@ -240,6 +242,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
               {userType === 'individual' ? (
                 <div>
                   <label className="block text-lg font-bold mb-2 text-gray-700">Name</label>
+                  <p className="text-gray-500 mb-4">Enter your name as you would like it to appear on the card.</p>
                   <input
                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                     type="text"
@@ -255,6 +258,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
                 <>
                   <div>
                     <label className="block text-lg font-bold mb-2 text-gray-700">Company Name</label>
+                    <p className="text-gray-500 mb-4">Enter your company’s name to be displayed on the card.</p>
                     <input
                       className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                       type="text"
@@ -280,7 +284,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
                   </div>
                   {showEmployeeName && (
                     <div>
-                      <label className="block text-lg font-bold mb-2 text-gray-700">Employee Name (Optional)</label>
+                      <label className="block text-lg font-bold mb-2 text-gray-700">Employee Name</label>
+                      <p className="text-gray-500 mb-4">Enter the employee’s name to be displayed on the card.</p>
                       <input
                         className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                         type="text"
@@ -295,6 +300,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
                   )}
                   <div>
                     <label className="block text-lg font-bold mb-2 text-gray-700">Logo</label>
+                    <p className="text-gray-500 mb-4">Upload your company logo to include it on the card.</p>
                     <input
                       type="file"
                       accept="image/*"
@@ -304,6 +310,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
                   </div>
                   <div>
                     <label className="block text-lg font-bold mb-2 text-gray-700">Logo Scale</label>
+                    <p className="text-gray-500 mb-4">Adjust the size of the logo to fit your card’s design.</p>
                     <input
                       type="range"
                       min="0.5"
@@ -320,6 +327,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-lg font-bold mb-2 text-gray-700">Card Color</label>
+                  <p className="text-gray-500 mb-4">Select a background color for your card.</p>
                   <select
                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                     value={cardColor}
@@ -334,6 +342,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
                 </div>
                 <div>
                   <label className="block text-lg font-bold mb-2 text-gray-700">Text Color</label>
+                  <p className="text-gray-500 mb-4">Choose a color for the text on your card.</p>
                   <select
                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                     value={color}
@@ -351,6 +360,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-lg font-bold mb-2 text-gray-700">Font</label>
+                  <p className="text-gray-500 mb-4">Select a font style for your text.</p>
                   <select className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                     value={font}
                     onChange={(e) => setFont(e.target.value)}
@@ -364,6 +374,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
                 </div>
                 <div>
                   <label className="block text-lg font-bold mb-2 text-gray-700">Font Size</label>
+                  <p className="text-gray-500 mb-4">Adjust the size of the text on your card.</p>
                   <input
                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                     type="number"
@@ -377,6 +388,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
 
               <div>
                 <label className="block text-lg font-bold mb-2 text-gray-700">Card Social Icons</label>
+                <p className="text-gray-500 mb-4">Select which social media icons to display on your card.</p>
                 <div className="flex flex-wrap gap-2">
                   {socialMediaOptions.map((option) => (
                     <button
@@ -399,6 +411,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
               {userType === 'business' && (
                 <div>
                   <label className="block text-lg font-bold mb-2 text-gray-700">Icon Size</label>
+                  <p className="text-gray-500 mb-4">Adjust the size of the social media icons on your card.</p>
                   <input
                     type="range"
                     min="16"
@@ -413,6 +426,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
 
               <div>
                 <label className="block text-lg font-bold mb-2 text-gray-700">Link for Card</label>
+                <p className="text-gray-500 mb-4">Add a Linktree or website link to be included on the card.</p>
                 <input
                   className={`w-full p-2 border ${
                     isValidUrl ? 'border-gray-300' : 'border-red-500'
@@ -461,6 +475,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
 
               <div>
                 <label className="block text-lg font-bold mb-2 text-gray-700">Number of Cards</label>
+                <p className="text-gray-500 mb-4">Select the quantity of cards you would like to order.</p>
                 <div className="flex items-center space-x-4">
                   <button
                     type="button"
@@ -487,6 +502,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
 
               <div>
                 <label className="block text-lg font-bold mb-2 text-gray-700">Email</label>
+                <p className="text-gray-500 mb-4">Enter your email address for order confirmation.</p>
                 <input
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                   type="email"
@@ -498,7 +514,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="block text-lg font-bold mb-2 text-gray-700">Phone Number (We'll text you about your order)</label>
+                <label className="block text-lg font-bold mb-2 text-gray-700">Phone Number</label>
+                <p className="text-gray-500 mb-4">We’ll text you about your order status.</p>
                 <input
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                   type="tel"

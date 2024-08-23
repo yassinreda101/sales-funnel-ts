@@ -1,8 +1,6 @@
 import React from 'react';
 import { FaArrowRight, FaMobileAlt, FaQrcode, FaNetworkWired } from 'react-icons/fa';
-
-// Import images (now with .png extension)
-import step1Img from '../images/step1.png'; // Adjust the path as needed
+import step1Img from '../images/step1.png';
 import step2Img from '../images/step2.png';
 import step3Img from '../images/step3.png';
 
@@ -12,10 +10,10 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 p-4">
       <div className="max-w-6xl mx-auto">
         <header className="text-center py-12">
-          <h1 className="text-6xl font-bold text-gray-800 mb-6 animate-fade-in">
+          <h1 className="text-6xl font-extrabold text-gray-800 mb-6 animate-fade-in">
             Welcome to SwiftCard
           </h1>
           <p className="text-2xl text-gray-600 mb-8 animate-slide-in-top">
@@ -23,9 +21,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           </p>
           <button
             onClick={onGetStarted}
-            className="bg-indigo-600 text-white font-bold text-xl py-4 px-8 rounded-full hover:bg-indigo-700 transition duration-300 flex items-center mx-auto animate-bounce"
+            className="bg-indigo-600 text-white font-bold text-xl py-4 px-8 rounded-full hover:bg-indigo-700 transition duration-300 flex items-center mx-auto animate-bounce shadow-lg"
           >
             Get Started <FaArrowRight className="ml-2" />
+          </button>
+          <button
+            className="text-indigo-600 mt-4 underline hover:text-indigo-800 transition duration-300"
+          >
+            Learn More
           </button>
         </header>
 
@@ -47,7 +50,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           />
         </div>
 
-        {/* New Steps Demo Section */}
         <div className="text-center mb-20">
           <h2 className="text-4xl font-bold text-gray-800 mb-12">How SwiftCard Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -55,21 +57,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               number={1}
               title="Personalize Your Card"
               description="Design a card that reflects your brand, complete with your unique links and contact information."
-              imageSrc={step1Img} // Use imported image here
+              imageSrc={step1Img}
               imageAlt="Customize your SwiftCard"
             />
             <StepCard
               number={2}
               title="Connect Instantly"
               description="Tap or scan to instantly share your details—no more fumbling with paper business cards."
-              imageSrc={step2Img} // Use imported image here
+              imageSrc={step2Img}
               imageAlt="Tap to connect with SwiftCard"
             />
             <StepCard
               number={3}
               title="Leave a Mark"
-              description="Leave a memorable mark with a sleek, tech-savvy card designed for modern networking."
-              imageSrc={step3Img} // Use imported image here
+              description="Make a memorable impression with a sleek, tech-savvy card designed for modern networking."
+              imageSrc={step3Img}
               imageAlt="Make connections with SwiftCard"
             />
           </div>
@@ -78,10 +80,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-800 mb-6">Why Choose SwiftCard?</h2>
           <ul className="text-xl text-gray-600 space-y-4">
-            <li>✅ Tailored for Georgia Tech students and Atlanta professionals</li>
-            <li>✅ Affordable pricing starting at just $5.99—student-friendly</li>
-            <li>✅ Easy-to-use online designer—create your perfect card in minutes</li>
-            <li>✅ Fast, free delivery in Atlanta—pay upon receiving your card with multiple payment options</li>
+            <li><span className="font-bold text-indigo-600">✅</span> Tailored for Georgia Tech students and Atlanta professionals</li>
+            <li><span className="font-bold text-indigo-600">✅</span> Affordable pricing starting at just $5.99—student-friendly</li>
+            <li><span className="font-bold text-indigo-600">✅</span> Easy-to-use online designer—create your perfect card in minutes</li>
+            <li><span className="font-bold text-indigo-600">✅</span> Fast, free delivery in Atlanta—pay upon receiving your card with multiple payment options</li>
           </ul>
         </div>
 
@@ -106,7 +108,7 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
 );
 
 const StepCard: React.FC<{ number: number; title: string; description: string; imageSrc: string; imageAlt: string }> = ({ number, title, description, imageSrc, imageAlt }) => (
-  <div className="bg-white p-6 rounded-lg shadow-lg">
+  <div className="bg-white p-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
     <div className="text-4xl font-bold text-indigo-600 mb-4">{number}</div>
     <h3 className="text-2xl font-semibold mb-2 text-gray-800">{title}</h3>
     <p className="text-gray-600 mb-4">{description}</p>
