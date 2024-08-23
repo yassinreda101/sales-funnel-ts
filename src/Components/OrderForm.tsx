@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FaUser, FaBuilding, FaArrowLeft, FaFacebook, FaInstagram, FaLinkedin, FaGithub, FaSnapchat, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import { TbLetterX } from 'react-icons/tb';
 import Card from './Card';
@@ -48,8 +47,6 @@ interface OrderFormProps {
 }
 
 const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [userType, setUserType] = useState<'individual' | 'business'>('individual');
   const [name, setName] = useState('');
   const [employeeName, setEmployeeName] = useState('');
@@ -154,8 +151,6 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
       return;
     }
 
-    setIsSubmitting(true);
-
     const formData = {
       userType,
       name,
@@ -182,16 +177,14 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
       console.log('Submitting order with data:', formData);
       const response = await sendOrderEmail(formData);
       console.log('Order submission response:', response);
-      navigate('/order-confirmation');
+      alert("Order submitted successfully! Check your email and phone for confirmation.");
     } catch (error) {
       console.error("Detailed error submitting order:", error);
       if (error instanceof Error) {
-        setError(`Error submitting order: ${error.message}`);
+        alert(`Error submitting order: ${error.message}`);
       } else {
-        setError("There was an unknown error submitting your order. Please try again.");
+        alert("There was an unknown error submitting your order. Please try again.");
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -203,11 +196,6 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
 
   return (
     <div className="py-12 px-4 bg-white" ref={formRef}>
-      {isSubmitting && (
-        <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
-          <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-24 w-24"></div>
-        </div>
-      )}
       <div className="max-w-7xl mx-auto">
         <button
           onClick={onBack}
@@ -519,9 +507,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
               <button
                 className="w-full p-3 bg-indigo-600 text-white text-lg font-bold rounded-lg hover:bg-indigo-700 transition-colors"
                 type="submit"
-                disabled={isSubmitting}
               >
-                {isSubmitting ? 'Submitting...' : 'Place Order'}
+                Place Order
               </button>
             </form>
           </div>
