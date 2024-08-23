@@ -71,7 +71,6 @@ exports.handler = async (event, context) => {
             <h2>Order Details:</h2>
             <ul>
               ${Object.entries(orderDetails).map(([key, value]) => {
-                // Skip the logo in this list as we're displaying it separately
                 if (key === 'logo') return '';
                 return `<li><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</li>`;
               }).join('')}
@@ -95,15 +94,15 @@ exports.handler = async (event, context) => {
       html: adminEmailHtml
     });
 
-    // Simplified client email with relevant details including link and fixed card color
+    // Simplified client email with relevant details including link, fixed card color, and delivery information
     const clientEmailHtml = `
     <html>
       <head>
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; }
-          h1 { color: #4F46E5; }
-          .order-details { background-color: #f4f4f4; padding: 15px; border-radius: 5px; }
+          h1, h2 { color: #4F46E5; }
+          .order-details, .delivery-info { background-color: #f4f4f4; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
           .footer { margin-top: 20px; font-size: 0.9em; color: #666; }
         </style>
       </head>
@@ -121,6 +120,15 @@ exports.handler = async (event, context) => {
               <li><strong>Link:</strong> ${orderDetails.link || 'Not specified'}</li>
               <li><strong>Price:</strong> $${orderDetails.price || 'Not specified'}</li>
             </ul>
+          </div>
+          <div class="delivery-info">
+            <h2>Delivery and Pickup Options:</h2>
+            <p>We offer two convenient options for receiving your SwiftCard:</p>
+            <ol>
+              <li><strong>Personal Delivery:</strong> We can arrange a delivery anywhere in Atlanta. Our team will reach out to you directly via text message to coordinate a suitable time and location.</li>
+              <li><strong>Georgia Tech Pickup:</strong> You can pick up your order on Wednesdays in front of the Student Center at Georgia Tech.</li>
+            </ol>
+            <p>Our team will contact you shortly via text message to confirm your preferred option and arrange the details.</p>
           </div>
           <p>We're processing your order and will update you on its status soon. If you have any questions, please don't hesitate to contact us.</p>
           <p>Thank you for choosing SwiftCard!</p>
