@@ -33,13 +33,13 @@ const colorOptions = [
 ];
 
 const cardColorOptions = [
-  { value: 'bg-dark-gray', label: 'Dark Gray' },
+  { value: 'bg-dark-gray', label: 'Black' },
   { value: 'bg-white', label: 'White' },
 ];
 
 const cardPrices: { [key: string]: { name: number; logo: number } } = {
   individual: { name: 5.99, logo: 7.99 },
-  business: { name: 10.99, logo: 14.99 },
+  business: { name: 10.99, logo: 15.00 },
 };
 
 interface OrderFormProps {
@@ -248,7 +248,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
                       setName(e.target.value);
                       setIsDefault(false);
                     }}
-                    placeholder="Enter your name"
+                    placeholder="Enter your name (WE RECOMMEND ALL CAPS)"
                   />
                 </div>
               ) : (
@@ -376,7 +376,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="block text-lg font-bold mb-2 text-gray-700">Social Media</label>
+                <label className="block text-lg font-bold mb-2 text-gray-700">Card Social Icons</label>
                 <div className="flex flex-wrap gap-2">
                   {socialMediaOptions.map((option) => (
                     <button
@@ -435,7 +435,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
                   className="mr-2 focus:ring-2 focus:ring-soft-blue"
                 />
                 <label className="text-lg font-bold text-gray-700" htmlFor="addQrCode">
-                  Add a QR code to the back of the card +$3
+                  Add a QR code to the back (extra $3 dollars)
                 </label>
               </div>
 
@@ -450,7 +450,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
                       className="mr-2 focus:ring-2 focus:ring-soft-blue"
                     />
                     <label className="text-lg font-bold text-gray-700" htmlFor="showQrCode">
-                      Show QR code on back of card
+                      Show QR code on back of card (Tap card to see!!)
                     </label>
                   </div>
                   <div>
@@ -498,7 +498,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="block text-lg font-bold mb-2 text-gray-700">Phone Number</label>
+                <label className="block text-lg font-bold mb-2 text-gray-700">Phone Number (We'll text you about your order)</label>
                 <input
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-soft-blue"
                   type="tel"
