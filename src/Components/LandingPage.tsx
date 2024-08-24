@@ -82,12 +82,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           </ul>
         </div>
 
-        <div className="text-center">
-          <img
-            src="/api/placeholder/800/400"
-            alt="SwiftCard Demo"
-            className="rounded-lg shadow-2xl max-w-full h-auto mx-auto animate-fade-in"
-          />
+        <div className="text-center my-20">
+          <h2 className="text-4xl font-bold text-gray-800 mb-8">See SwiftCard in Action</h2>
+          <div className="aspect-w-16 aspect-h-9 max-w-4xl mx-auto">
+            <video
+              className="w-full h-full rounded-lg shadow-2xl"
+              controls
+            >
+              <source src="/demo-video.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
         </div>
       </div>
     </div>
